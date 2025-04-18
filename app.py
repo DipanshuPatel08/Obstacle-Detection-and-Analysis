@@ -38,6 +38,10 @@ def index():
 def detector():
     return render_template('detector.html')
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
 @app.route('/upload', methods=['POST'])
 def upload_image():
     if 'image' not in request.files:
