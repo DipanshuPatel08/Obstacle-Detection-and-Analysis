@@ -61,15 +61,15 @@
     <div class="col-md-6 mb-4">
         <div class="card h-100">
             <div class="card-header">
-                <h3 class="card-title mb-0">Navigation Suggestion</h3>
+                <h3 class="card-title mb-0">Obstacle Detection</h3>
             </div>
             <div class="card-body">
                 <div class="navigation-result">
-                    <div class="direction-icon mb-3">
-                        <i class="fas fa-arrow-right fa-3x" id="direction-icon"></i>
+                    <div class="detection-icon mb-3">
+                        <i class="fas fa-exclamation-triangle fa-3x text-warning"></i>
                     </div>
-                    <h4 id="direction-text">Move Forward</h4>
-                    <p>Based on obstacle detection, the recommended navigation direction is shown above.</p>
+                    <h4>Detected Obstacles</h4>
+                    <p>White boundaries highlight detected obstacles in the processed image.</p>
                 </div>
             </div>
         </div>
@@ -130,8 +130,6 @@
         const loadingAlert = document.getElementById('loading-alert');
         const originalImage = document.getElementById('original-image');
         const processedImage = document.getElementById('processed-image');
-        const directionText = document.getElementById('direction-text');
-        const directionIcon = document.getElementById('direction-icon');
         const sceneDescription = document.getElementById('scene-description');
         const obstacleInfo = document.getElementById('obstacle-info');
         const tryAnother = document.getElementById('try-another');
@@ -176,21 +174,17 @@
                     originalImage.src = '/' + data.original_image;
                     processedImage.src = '/' + data.processed_image;
                     
-                    // Update direction
-                    directionText.textContent = data.direction;
+                    // Direction code removed as we're focusing on obstacle detection only
                     
-                    // Update direction icon
-                    directionIcon.className = 'fas fa-3x ';
-                    if (data.direction === 'Move left') {
-                        directionIcon.className += 'fa-arrow-left text-primary';
-                    } else if (data.direction === 'Move right') {
-                        directionIcon.className += 'fa-arrow-right text-primary';
-                    } else {
-                        directionIcon.className += 'fa-arrow-up text-success';
-                    }
+                    // Display scene description with improved formatting
+                    let formattedDescription = data.description
+                        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Bold text
+                        .replace(/\*(.*?)\*/g, '<em>$1</em>') // Italic text
+                        .replace(/\n\s*\n/g, '</p><p>') // Paragraphs
+                        .replace(/\n(\d+\.)/g, '<br>$1') // Numbered lists
+                        .replace(/\n- /g, '<br>• '); // Bullet points
                     
-                    // Display scene description
-                    sceneDescription.innerHTML = `<p>${data.description.replace(/\n/g, '<br>')}</p>`;
+                    sceneDescription.innerHTML = `<p>${formattedDescription}</p>`;
                     
                     // Display obstacle information
                     if (data.contours_info && data.contours_info.length > 0) {

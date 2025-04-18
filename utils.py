@@ -33,7 +33,7 @@ def process_image(image_path):
         
     Returns:
         processed_path: Path to the processed image
-        direction: Navigation direction
+        direction: Navigation direction (preserved for backward compatibility)
         contours_info: Information about detected contours
     """
     # Read the image
@@ -44,91 +44,29 @@ def process_image(image_path):
     
     # Create copies for different visualizations
     original_frame = frame.copy()
-    img_edgerep = frame.copy()
-    img_contour = frame.copy()
-    img_navigation = frame.copy()
+    img_processed = frame.copy()
     
     # Process image for edge detection
-    blur = cv2.bilateralFilter(img_edgerep, 9, 40, 40)
+    blur = cv2.bilateralFilter(img_processed, 9, 40, 40)
     edges = cv2.Canny(blur, 50, 100)
     
-    img_edgerep_h = img_edgerep.shape[0] - 1
-    img_edgerep_w = img_edgerep.shape[1] - 1
-    
-    EdgeArray = []
-    StepSize = 5
-    
-    # Edge detection logic
-    for j in range(0, img_edgerep_w, StepSize):
-        pixel = (j, 0)
-        for i in range(img_edgerep_h - 5, 0, -1):
-            if edges.item(i, j) == 255:
-                pixel = (j, i)
-                break
-        EdgeArray.append(pixel)
-    
-    # Draw edges
-    for x in range(len(EdgeArray) - 1):
-        cv2.line(img_edgerep, EdgeArray[x], EdgeArray[x + 1], (0, 255, 0), 1)
-    
-    for x in range(len(EdgeArray)):
-        cv2.line(img_edgerep, (x * StepSize, img_edgerep_h), EdgeArray[x], (0, 255, 0), 1)
-    
     # Draw contours
-    blurred_frame = cv2.bilateralFilter(img_contour, 9, 75, 75)
+    blurred_frame = cv2.bilateralFilter(img_processed, 9, 75, 75)
     gray = cv2.cvtColor(blurred_frame, cv2.COLOR_BGR2GRAY)
     ret, thresh = cv2.threshold(gray, 106, 255, 1)
     contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    cv2.drawContours(img_edgerep, contours, -1, (0, 0, 255), 3)
     
-    # Navigation direction
-    number_of_chunks = 3
-    size_of_chunk = int(len(EdgeArray) / number_of_chunks)
-    chunks = make_chunks(EdgeArray, size_of_chunk)
-    avg_of_chunk = []
-    
-    for i in range(len(chunks) - 1):
-        x_vals = []
-        y_vals = []
-        for (x, y) in chunks[i]:
-            x_vals.append(x)
-            y_vals.append(y)
-        avg_x = int(np.average(x_vals))
-        avg_y = int(np.average(y_vals))
-        avg_of_chunk.append([avg_y, avg_x])
-        cv2.line(frame, (int(img_edgerep_w / 2), img_edgerep_h), (avg_x, avg_y), (255, 0, 0), 2)
-    
-    if len(avg_of_chunk) > 0:
-        forwardEdge = avg_of_chunk[min(1, len(avg_of_chunk)-1)]
-        cv2.line(frame, (int(img_edgerep_w / 2), img_edgerep_h), (forwardEdge[1], forwardEdge[0]), (0, 255, 0), 3)
-        farthest_point = min(avg_of_chunk)
-        
-        # Determine direction
-        if forwardEdge[0] > 250:
-            if farthest_point[1] < 310:
-                direction = "Move left"
-            else:
-                direction = "Move right"
-        else:
-            direction = "Move forward"
-    else:
-        direction = "Cannot determine direction"
-    
-    # Add direction text to image
-    font = cv2.FONT_HERSHEY_SIMPLEX
-    navigation = cv2.putText(frame, direction, (int(img_edgerep_w/2)-100, 50), font, 1, (0, 0, 255), 2, cv2.LINE_AA)
-    
-    # Save processed image
-    filename = f"processed_{uuid.uuid4().hex}.jpg"
-    processed_path = os.path.join('static/uploads', filename)
-    cv2.imwrite(processed_path, navigation)
-    
-    # Create contours info
+    # Create contours info and draw white highlights for obstacles
     contours_info = []
     for i, contour in enumerate(contours):
         area = cv2.contourArea(contour)
         if area > 500:  # Filter small contours
             x, y, w, h = cv2.boundingRect(contour)
+            # Draw white rectangle around obstacle
+            cv2.rectangle(img_processed, (x, y), (x+w, y+h), (255, 255, 255), 2)
+            # Add object number
+            cv2.putText(img_processed, f"Object {i+1}", (x, y-10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2)
+            
             contours_info.append({
                 'id': i,
                 'area': float(area),
@@ -137,6 +75,18 @@ def process_image(image_path):
                 'width': int(w),
                 'height': int(h)
             })
+    
+    # Add title to the processed image
+    font = cv2.FONT_HERSHEY_SIMPLEX
+    cv2.putText(img_processed, "Detected Obstacles", (10, 30), font, 1, (255, 255, 255), 2, cv2.LINE_AA)
+    
+    # Save processed image
+    filename = f"processed_{uuid.uuid4().hex}.jpg"
+    processed_path = os.path.join('static/uploads', filename)
+    cv2.imwrite(processed_path, img_processed)
+    
+    # Return a placeholder for direction to maintain backward compatibility
+    direction = "Obstacles Detected"
     
     return processed_path, direction, contours_info
 
@@ -180,10 +130,20 @@ def generate_scene_description(image_path, input_text=""):
         prompt = """
         You are an expert in analyzing images for robotics applications and obstacle detection. 
         Provide a detailed description of the image, focusing on:
-        1. Identifying potential obstacles and their positions
-        2. Describing the scene environment
-        3. Explaining what path planning challenges might exist
-        4. Suggesting possible navigation strategies
+        
+        1. Scene Overview: Briefly describe what's in the image (1-2 sentences)
+        
+        2. Obstacles Identified: List and describe each potential obstacle, including their:
+           - Approximate position in the scene (top-left, center, etc.)
+           - Estimated size/dimensions
+           - Type (static object, potential moving object, terrain feature)
+        
+        3. Path Planning Challenges: Explain what difficulties a robot might face navigating this scene
+        
+        4. Navigation Recommendations: Suggest the safest route through the scene
+        
+        Format your response in clean paragraphs without using markdown symbols like * or **. 
+        Use simple HTML for organization if needed, but keep formatting minimal and clean.
         Keep your analysis concise but informative for robotics applications.
         """
         
