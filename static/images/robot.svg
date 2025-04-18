@@ -1,0 +1,43 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500">
+  <style>
+    .robot-primary { fill: #2196F3; }
+    .robot-secondary { fill: #4CAF50; }
+    .robot-accent { fill: #FF4081; }
+    .robot-light { fill: #E0E0E0; }
+    .robot-dark { fill: #212121; }
+  </style>
+  <rect x="150" y="100" width="200" height="220" rx="20" class="robot-primary"/>
+  <rect x="175" y="130" width="150" height="140" rx="10" class="robot-light"/>
+  
+  <!-- Eyes -->
+  <circle cx="210" cy="170" r="15" class="robot-dark"/>
+  <circle cx="290" cy="170" r="15" class="robot-dark"/>
+  <circle cx="210" cy="170" r="5" fill="white"/>
+  <circle cx="290" cy="170" r="5" fill="white"/>
+  
+  <!-- Mouth -->
+  <rect x="200" y="210" width="100" height="20" rx="10" class="robot-dark"/>
+  <rect x="220" y="210" width="60" height="10" rx="5" fill="white"/>
+  
+  <!-- Antenna -->
+  <rect x="240" y="80" width="20" height="30" class="robot-primary"/>
+  <circle cx="250" cy="70" r="15" class="robot-accent"/>
+  
+  <!-- Arms -->
+  <rect x="100" y="150" width="50" height="20" rx="10" class="robot-primary"/>
+  <rect x="350" y="150" width="50" height="20" rx="10" class="robot-primary"/>
+  <circle cx="100" cy="160" r="15" class="robot-secondary"/>
+  <circle cx="400" cy="160" r="15" class="robot-secondary"/>
+  
+  <!-- Legs -->
+  <rect x="180" y="320" width="30" height="80" rx="10" class="robot-primary"/>
+  <rect x="290" y="320" width="30" height="80" rx="10" class="robot-primary"/>
+  <rect x="165" y="390" width="60" height="20" rx="10" class="robot-secondary"/>
+  <rect x="275" y="390" width="60" height="20" rx="10" class="robot-secondary"/>
+  
+  <!-- Control panel -->
+  <rect x="200" y="260" width="100" height="40" rx="5" class="robot-dark"/>
+  <circle cx="225" cy="280" r="10" class="robot-accent"/>
+  <circle cx="250" cy="280" r="10" class="robot-secondary"/>
+  <circle cx="275" cy="280" r="10" class="robot-primary"/>
+</svg>

@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <style>
+    .upload-primary { fill: #2196F3; }
+    .upload-secondary { fill: #E0E0E0; }
+    .upload-accent { fill: #4CAF50; }
+  </style>
+  
+  <!-- Cloud background -->
+  <path d="M75,65H25c-11,0-20-9-20-20c0-9.4,6.5-17.3,15.2-19.4C22.5,14.4,32.4,7,44,7c14.4,0,26.1,11.7,26.1,26.1
+  c0,0.3,0,0.7,0,1C80.8,36.4,90,47.2,90,60C90,65,85,65,75,65z" class="upload-secondary"/>
+  
+  <!-- Upload arrow -->
+  <g>
+    <rect x="45" y="40" width="10" height="30" class="upload-primary"/>
+    <path d="M50,30l-15,15h30L50,30z" class="upload-primary"/>
+  </g>
+  
+  <!-- Success check mark -->
+  <circle cx="75" cy="75" r="15" class="upload-accent"/>
+  <path d="M68,75l5,5l10-10" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

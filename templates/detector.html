@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="detector-header text-center mb-4">
+    <h1>Object Detection Tool</h1>
+    <p class="lead">Upload an image to detect obstacles and get navigation suggestions</p>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-8 mx-auto">
+        <div class="upload-container text-center py-5" id="upload-container">
+            <div class="upload-icon mb-3">
+                <img src="{{ url_for('static', filename='images/upload.svg') }}" alt="Upload" class="img-fluid">
+            </div>
+            <h3>Drag & Drop or Click to Upload</h3>
+            <p>Support for JPG, JPEG, PNG (Max 16MB)</p>
+            <form id="upload-form" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <input type="file" class="form-control visually-hidden" id="image-input" name="image" accept=".jpg,.jpeg,.png">
+                    <label for="image-input" class="btn btn-primary mt-3">Select Image</label>
+                </div>
+                <div class="mb-3">
+                    <input type="text" class="form-control" id="prompt-input" name="prompt" placeholder="Optional: Ask a specific question about the image">
+                </div>
+                <button type="submit" class="btn btn-success" id="process-btn">Process Image</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5 d-none" id="results-container">
+    <div class="col-12 mb-4">
+        <h2 class="section-title">Detection Results</h2>
+        <div class="alert alert-info" id="loading-alert">
+            <i class="fas fa-spinner fa-spin me-2"></i> Processing your image. This may take a few seconds...
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Original Image</h3>
+            </div>
+            <div class="card-body text-center">
+                <img src="" alt="Original Image" class="img-fluid result-image" id="original-image">
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Processed Image</h3>
+            </div>
+            <div class="card-body text-center">
+                <img src="" alt="Processed Image" class="img-fluid result-image" id="processed-image">
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Navigation Suggestion</h3>
+            </div>
+            <div class="card-body">
+                <div class="navigation-result">
+                    <div class="direction-icon mb-3">
+                        <i class="fas fa-arrow-right fa-3x" id="direction-icon"></i>
+                    </div>
+                    <h4 id="direction-text">Move Forward</h4>
+                    <p>Based on obstacle detection, the recommended navigation direction is shown above.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Obstacle Information</h3>
+            </div>
+            <div class="card-body">
+                <div id="obstacle-info">
+                    <p>No obstacles detected.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">Scene Analysis</h3>
+            </div>
+            <div class="card-body">
+                <div id="scene-description">
+                    <p>Scene description will appear here after processing.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-12 text-center">
+        <button class="btn btn-primary" id="try-another">Try Another Image</button>
+    </div>
+</div>
+
+<div class="row mt-5 mb-5 d-none" id="error-container">
+    <div class="col-12">
+        <div class="alert alert-danger">
+            <h4 class="alert-heading">Processing Error</h4>
+            <p id="error-message">Something went wrong with image processing. Please try again with a different image.</p>
+        </div>
+        <div class="text-center mt-3">
+            <button class="btn btn-primary" id="try-again-error">Try Again</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const uploadForm = document.getElementById('upload-form');
+        const imageInput = document.getElementById('image-input');
+        const uploadContainer = document.getElementById('upload-container');
+        const resultsContainer = document.getElementById('results-container');
+        const errorContainer = document.getElementById('error-container');
+        const loadingAlert = document.getElementById('loading-alert');
+        const originalImage = document.getElementById('original-image');
+        const processedImage = document.getElementById('processed-image');
+        const directionText = document.getElementById('direction-text');
+        const directionIcon = document.getElementById('direction-icon');
+        const sceneDescription = document.getElementById('scene-description');
+        const obstacleInfo = document.getElementById('obstacle-info');
+        const tryAnother = document.getElementById('try-another');
+        const tryAgainError = document.getElementById('try-again-error');
+        
+        // Handle file selection
+        imageInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const fileName = this.files[0].name;
+                const label = document.querySelector('label[for="image-input"]');
+                label.textContent = fileName;
+            }
+        });
+        
+        // Handle form submission
+        uploadForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!imageInput.files || !imageInput.files[0]) {
+                alert('Please select an image first');
+                return;
+            }
+            
+            // Show loading state
+            uploadContainer.classList.add('d-none');
+            resultsContainer.classList.remove('d-none');
+            errorContainer.classList.add('d-none');
+            loadingAlert.classList.remove('d-none');
+            
+            const formData = new FormData(uploadForm);
+            
+            fetch('/upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                loadingAlert.classList.add('d-none');
+                
+                if (data.success) {
+                    // Display results
+                    originalImage.src = '/' + data.original_image;
+                    processedImage.src = '/' + data.processed_image;
+                    
+                    // Update direction
+                    directionText.textContent = data.direction;
+                    
+                    // Update direction icon
+                    directionIcon.className = 'fas fa-3x ';
+                    if (data.direction === 'Move left') {
+                        directionIcon.className += 'fa-arrow-left text-primary';
+                    } else if (data.direction === 'Move right') {
+                        directionIcon.className += 'fa-arrow-right text-primary';
+                    } else {
+                        directionIcon.className += 'fa-arrow-up text-success';
+                    }
+                    
+                    // Display scene description
+                    sceneDescription.innerHTML = `<p>${data.description.replace(/\n/g, '<br>')}</p>`;
+                    
+                    // Display obstacle information
+                    if (data.contours_info && data.contours_info.length > 0) {
+                        let obstacleHtml = `<p>Detected ${data.contours_info.length} significant obstacle(s):</p>`;
+                        obstacleHtml += '<ul>';
+                        
+                        data.contours_info.forEach((contour, index) => {
+                            obstacleHtml += `<li>Obstacle ${index + 1}: Area ${Math.round(contour.area)} pixels, Position (${contour.x}, ${contour.y})</li>`;
+                        });
+                        
+                        obstacleHtml += '</ul>';
+                        obstacleInfo.innerHTML = obstacleHtml;
+                    } else {
+                        obstacleInfo.innerHTML = '<p>No significant obstacles detected.</p>';
+                    }
+                    
+                } else {
+                    // Show error
+                    resultsContainer.classList.add('d-none');
+                    errorContainer.classList.remove('d-none');
+                    document.getElementById('error-message').textContent = data.error || 'An unknown error occurred';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                loadingAlert.classList.add('d-none');
+                resultsContainer.classList.add('d-none');
+                errorContainer.classList.remove('d-none');
+                document.getElementById('error-message').textContent = 'Network error occurred. Please try again.';
+            });
+        });
+        
+        // Handle try another button
+        tryAnother.addEventListener('click', function() {
+            uploadForm.reset();
+            document.querySelector('label[for="image-input"]').textContent = 'Select Image';
+            uploadContainer.classList.remove('d-none');
+            resultsContainer.classList.add('d-none');
+        });
+        
+        // Handle try again after error
+        tryAgainError.addEventListener('click', function() {
+            uploadForm.reset();
+            document.querySelector('label[for="image-input"]').textContent = 'Select Image';
+            uploadContainer.classList.remove('d-none');
+            errorContainer.classList.add('d-none');
+        });
+        
+        // Handle drag and drop
+        const dropArea = uploadContainer;
+        
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+        
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+        
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+        
+        dropArea.addEventListener('drop', handleDrop, false);
+        
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            
+            if (files.length > 0) {
+                imageInput.files = files;
+                
+                // Update the label
+                const fileName = files[0].name;
+                const label = document.querySelector('label[for="image-input"]');
+                label.textContent = fileName;
+            }
+        }
+    });
+</script>
+{% endblock %}

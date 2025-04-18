@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="row hero-section">
+    <div class="col-md-6 d-flex flex-column justify-content-center">
+        <h1 class="display-4 fw-bold mb-4">Obstacle Detection for Robotics</h1>
+        <p class="lead mb-4">Learn how robots navigate around obstacles and use our object detection tool to see it in action.</p>
+        <div>
+            <a href="{{ url_for('detector') }}" class="btn btn-primary btn-lg mb-3">Try Object Detection</a>
+        </div>
+    </div>
+    <div class="col-md-6 text-center">
+        <img src="{{ url_for('static', filename='images/robot.svg') }}" alt="Robot Navigation" class="img-fluid hero-image">
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h2 class="section-title">About Obstacle Detection in Robotics</h2>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="card-title"><i class="fas fa-camera text-primary me-2"></i>Sensing</h3>
+                <p class="card-text">Robots use a variety of sensors such as cameras, LiDAR, and ultrasonic sensors to perceive their environment. These sensors collect data that is then processed to identify potential obstacles.</p>
+                <p class="card-text">Computer vision techniques like edge detection and contour analysis help robots interpret visual data to identify the shape, size, and location of objects in their path.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="card-title"><i class="fas fa-brain text-primary me-2"></i>Processing</h3>
+                <p class="card-text">After sensing the environment, robots process the collected data to distinguish between safe paths and obstacles. This involves algorithms for edge detection, object recognition, and depth estimation.</p>
+                <p class="card-text">Machine learning models like convolutional neural networks (CNNs) help robots identify complex objects and understand scene context, making navigation more intelligent.</p>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h3 class="card-title"><i class="fas fa-route text-primary me-2"></i>Navigation</h3>
+                <p class="card-text">With obstacles identified, robots use path planning algorithms to determine the optimal route. Popular approaches include A* algorithm, RRT (Rapidly-exploring Random Tree), and potential field methods.</p>
+                <p class="card-text">Real-time obstacle avoidance is critical for dynamic environments, where robots must continuously update their path as new obstacles appear or existing ones move.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5">
+    <div class="col-12">
+        <h2 class="section-title">How Our Object Detection Tool Works</h2>
+    </div>
+</div>
+
+<div class="row mt-4 align-items-center">
+    <div class="col-md-6">
+        <img src="{{ url_for('static', filename='images/obstacle.svg') }}" alt="Obstacle Detection Diagram" class="img-fluid">
+    </div>
+    <div class="col-md-6">
+        <div class="process-steps">
+            <div class="process-step">
+                <div class="process-number">1</div>
+                <div class="process-text">
+                    <h4>Upload an Image</h4>
+                    <p>Upload an image with potential obstacles for the robot to navigate around.</p>
+                </div>
+            </div>
+            <div class="process-step">
+                <div class="process-number">2</div>
+                <div class="process-text">
+                    <h4>Edge Detection</h4>
+                    <p>Our system uses the Canny edge detection algorithm to identify object boundaries.</p>
+                </div>
+            </div>
+            <div class="process-step">
+                <div class="process-number">3</div>
+                <div class="process-text">
+                    <h4>Contour Analysis</h4>
+                    <p>Contours are identified to determine the shape and size of obstacles.</p>
+                </div>
+            </div>
+            <div class="process-step">
+                <div class="process-number">4</div>
+                <div class="process-text">
+                    <h4>Navigation Suggestion</h4>
+                    <p>Based on the obstacle positions, a navigation direction is suggested (left, right, or forward).</p>
+                </div>
+            </div>
+            <div class="process-step">
+                <div class="process-number">5</div>
+                <div class="process-text">
+                    <h4>Scene Description</h4>
+                    <p>Using Google's Generative AI, we provide a detailed analysis of the scene and potential navigation challenges.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-5 mb-5">
+    <div class="col-12 text-center">
+        <a href="{{ url_for('detector') }}" class="btn btn-primary btn-lg">Try It Yourself</a>
+    </div>
+</div>
+{% endblock %}

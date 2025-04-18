@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300">
+  <style>
+    .floor { fill: #E0E0E0; }
+    .obstacle-1 { fill: #FF4081; }
+    .obstacle-2 { fill: #4CAF50; }
+    .obstacle-3 { fill: #2196F3; }
+    .path { fill: none; stroke: #212121; stroke-width: 2; stroke-dasharray: 5,5; }
+    .robot { fill: #212121; }
+    .edges { fill: none; stroke: #4CAF50; stroke-width: 2; }
+    .contour { fill: none; stroke: #FF4081; stroke-width: 2; }
+  </style>
+  
+  <!-- Floor -->
+  <rect x="0" y="250" width="500" height="50" class="floor"/>
+  
+  <!-- Obstacles -->
+  <rect x="150" y="180" width="60" height="70" class="obstacle-1"/>
+  <circle cx="300" cy="220" r="30" class="obstacle-2"/>
+  <polygon points="400,200 420,250 380,250" class="obstacle-3"/>
+  
+  <!-- Robot -->
+  <rect x="50" y="220" width="30" height="30" rx="5" class="robot"/>
+  
+  <!-- Path planning visualization -->
+  <path d="M65,235 C100,235 120,200 180,200 C240,200 260,235 270,235 C280,235 290,200 350,200 C410,200 430,235 450,235" class="path"/>
+  
+  <!-- Edge detection visualization -->
+  <polyline points="0,250 150,250 150,180 210,180 210,250 270,250 300,190 330,250 380,250 400,200 420,250 500,250" class="edges"/>
+  
+  <!-- Contour detection -->
+  <rect x="148" y="178" width="64" height="74" rx="2" class="contour"/>
+  <circle cx="300" cy="220" r="32" class="contour"/>
+  <polygon points="398,198 422,252 378,252" class="contour"/>
+  
+  <!-- Labels -->
+  <text x="150" y="170" font-family="Arial" font-size="12" fill="#212121">Detected Edge</text>
+  <text x="300" y="170" font-family="Arial" font-size="12" fill="#212121">Contour Analysis</text>
+  <text x="60" y="270" font-family="Arial" font-size="12" fill="#212121">Robot</text>
+  <text x="400" y="270" font-family="Arial" font-size="12" fill="#212121">Obstacle</text>
+</svg>
