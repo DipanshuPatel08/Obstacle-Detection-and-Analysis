@@ -187,6 +187,14 @@ def generate_scene_description(image_path, input_text=""):
         Keep your analysis concise but informative for robotics applications.
         """
         
+        # Check if API key is configured
+        api_key = os.getenv("GOOGLE_API_KEY")
+        if not api_key:
+            return "Google API key is not configured. Please set the GOOGLE_API_KEY environment variable."
+        
+        # Configure Gemini with API key
+        genai.configure(api_key=api_key)
+        
         model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content([input_text, image_parts[0], prompt])
         return response.text
