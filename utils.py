@@ -111,16 +111,6 @@ def input_image_setup(image_path):
     return image_parts
 
 def generate_scene_description(image_path, input_text=""):
-    """
-    Generate scene description using Google Generative AI
-    
-    Args:
-        image_path: Path to the image
-        input_text: Input prompt
-        
-    Returns:
-        Description text
-    """
     try:
         if not input_text:
             input_text = "Describe what's in this image"
@@ -148,12 +138,12 @@ def generate_scene_description(image_path, input_text=""):
         """
         
         # Check if API key is configured
-        api_key = os.getenv("GOOGLE_API_KEY")
-        if not api_key:
-            return "Google API key is not configured. Please set the GOOGLE_API_KEY environment variable."
+        key = os.getenv("TBM")
+        if not key:
+            return "TBM is not configured. Please set the TBM environment variable."
         
         # Configure Gemini with API key
-        genai.configure(api_key=api_key)
+        genai.configure(api_key=key)
         
         model = genai.GenerativeModel('gemini-1.5-flash')
         response = model.generate_content([input_text, image_parts[0], prompt])

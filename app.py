@@ -12,8 +12,6 @@ logging.basicConfig(level=logging.DEBUG)
 # Load environment variables
 load_dotenv()
 
-# Configure Google Generative AI (moved to generate_scene_description function)
-
 # Create Flask app
 app = Flask(__name__)
 app.secret_key = os.environ.get("SESSION_SECRET", "default-dev-secret")
